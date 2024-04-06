@@ -11,7 +11,6 @@
 #include "estudiante.h"
 
 using namespace std;
-
 /*
     FUNCION PARA SEPARAR LA LINEA DEL ARCHIVO, Y ENTREGAR LAS PARTES.....
 */
@@ -26,176 +25,6 @@ vector<string> split(const string& linea, char separador) {
 }
 
 
-
-/*
-    FUNCION PARA GUARDAR EVENTOS DESDE ARCHIVO HACIA VECTOR EVENTOS.
-*/
-void cargarEventos(const string& archivo, vector<Evento*>& eventos) {
-    ifstream file(archivo);
-    if (file.is_open()) {
-        string linea;
-        while (getline(file, linea)) {
-            vector<string> partes = split(linea, '/');
-            string ID = partes[0];
-            string tipo = partes[1];
-            string ubicacion = partes[2];
-            int duracion = stoi(partes[3]);
-            int capacidad = stoi(partes[4]);
-            Evento* evento;
-            if (tipo == "Conferencia") {
-                evento = new Conferencia(ID, ubicacion, duracion, capacidad, partes[5], partes[6]);
-            } else if (tipo == "Concierto") {
-                evento = new Concierto(ID, ubicacion, duracion, capacidad, partes[5]);
-            } else {
-                // Tipo de evento no reconocido
-                continue;
-            }
-            eventos.push_back(evento);
-        }
-        file.close();
-    } else {
-        cout << "No se pudo abrir el archivo: " << archivo << endl;
-    }
-}
-/*
-    FUNCION PARA AGREGAR MANUALMENTE EVENTOS HACIA VECTOR EVENTOS.
-*/
-
-void agregarEventoManualmente(vector<Evento*>& eventos) {
-    string ID, tipo, ubicacion, duracionStr, capacidadStr, detalleAdicional;
-    int duracion, capacidad;
-    
-    cout << "Ingrese el ID del evento: " << endl;
-    cin >> ID;
-    cout << "Ingrese el tipo de evento (Conferencia o Concierto): " << endl;
-    cin >> tipo;
-
-    // Limpiar el búfer de entrada
-    cin.ignore();
-
-    cout << "Ingrese la ubicacion del evento: " << endl;
-    getline(cin, ubicacion);
-    cout << "Ingrese la duracion del evento (en minutos): " << endl;        
-    cin >> duracionStr;
-    cout << "Ingrese la capacidad del evento: " << endl;
-    cin >> capacidadStr;
-
-    // Limpiar el búfer de entrada nuevamente
-    cin.ignore();
-
-    duracion = stoi(duracionStr);
-    capacidad = stoi(capacidadStr);
-    Evento* nuevoEvento;
-
-    if (tipo == "Conferencia") {
-        string orador, tema;                                        
-        cout << "Ingrese el nombre del orador: " << endl;
-        getline(cin, orador);
-        cout << "Ingrese el tema de la conferencia: " << endl;
-        getline(cin, tema);
-        nuevoEvento = (new Conferencia(ID, ubicacion, duracion, capacidad, orador, tema));
-        cout << "Evento Conferencia creado correctamente!." << endl;
-    } else if (tipo == "Concierto") {
-        string artista;
-        cout << "Ingrese el nombre del artista invitado: " << endl;
-        getline(cin, artista);
-        nuevoEvento = (new Concierto(ID, ubicacion, duracion, capacidad, artista));
-        cout << "Evento Concierto creado correctamente!." << endl;
-    } else {
-        cout << "Tipo de evento no reconocido. No se pudo agregar el evento." << endl;
-        return;
-    }
-    eventos.push_back(nuevoEvento);
-
-    ofstream file("eventos.txt", ios::app);                                 
-    if(file.is_open()){
-        file <<"\n";
-        file << nuevoEvento->informacionParaArchivo();               
-        file.close();
-        cout << "Informacion Guardada" << endl;
-    } else{
-        cout << "No se puede abrir el archivo." << endl;
-    }
-}   
-/*
-    FUNCION PARA AGREGAR UN ASISTENTE AL SISTEMA
-*/
-void agregarAsistenteManualmente(vector<Asistente*>& asistentes) {
-    string profesion, nombre, dni, edadStr;
-    int edad;
-    
-    cout << "Ingrese la Ocupacion del Asistente (Profesional o Estudiante): ";
-    cin >> profesion;
-    cin.ignore(); // Limpiar el búfer de nueva línea antes de getline()
-
-    cout << "Ingrese el Nombre: ";
-    getline(cin, nombre);
-
-    cout << "Ingrese el DNI (Sin puntos ni guion): ";
-    cin >> dni;
-    cin.ignore(); // Limpiar el búfer de nueva línea después de cin
-
-    cout << "Ingrese la Edad: ";
-    cin >> edadStr;
-    edad = stoi(edadStr);
-    cin.ignore(); // Limpiar el búfer de nueva línea después de cin
-
-    if (profesion == "Profesional") {
-        string ocupacion, empresa;
-        cout << "Ingrese la Profesion: ";
-        getline(cin, ocupacion);
-
-        cout << "Ingrese la Empresa: ";
-        getline(cin, empresa);
-
-        asistentes.push_back(new Profesional(nombre, dni, edad, ocupacion, empresa));
-        cout << "Asistente Profesional agregado correctamente!" << endl;
-    } else if (profesion == "Estudiante") {
-        string carrera, institucion;
-        cout << "Ingrese la Carrera de estudio: ";
-        getline(cin, carrera);
-
-        cout << "Ingrese la Institucion: ";
-        getline(cin, institucion);
-
-        asistentes.push_back(new Estudiante(nombre, dni, edad, carrera, institucion));
-        cout << "Asistente Estudiante agregado correctamente!" << endl;
-    } else {
-        cout << "Tipo de Profesion no reconocido." << endl;
-    }
-}
-/*
-    FUNCION PARA GUARDAR ASISTENTES DESDE ARCHIVO HACIA VECTOR ASISTENTES
-*/
-void cargarAsistentes(const string& archivo, vector<Asistente*>& asistentes) {
-    ifstream file(archivo);
-    if (file.is_open()) {
-        string linea;
-        while (getline(file, linea)) {
-            vector<string> partes = split(linea, '/');
-            string tipo = partes[0];
-            string nombre = partes[1];
-            string dni = partes[2];
-            int edad = stoi(partes[3]);
-            Asistente* asistente;
-            if (tipo == "Profesional") {
-                asistente = new Profesional(nombre, dni, edad, partes[4], partes[5]);
-            } else if (tipo == "Estudiante") {
-                asistente = new Estudiante(nombre, dni, edad, partes[4], partes[5]);
-            } else {
-                // Tipo de asistente no reconocido
-                continue;
-            }
-            asistentes.push_back(asistente);
-        }
-        file.close();
-    } else {
-        cout << "No se pudo abrir el archivo: " << archivo << endl;
-    }
-}
-
-
-
 /*
     FUNCION PARA MOSTRAR EL LISTADO DE LOS EVENTOS
 */
@@ -203,15 +32,6 @@ void mostrarEventos(const vector<Evento*>& eventos) {
     cout << "Listado de Eventos Programados:" << endl;
     for (const auto& evento : eventos) {
         cout << evento->mostrarInformacionCompleta() << endl;
-    }
-}
-/*
-    FUNCION PARA MOSTRAR LOS ASISTENTES EN EL SISTEMA.  
-*/
-void mostrarAsistentesEnSistema(const vector<Asistente*>& Asistentes){
-    cout << "Listado de Asistentes en el Sistema: " << endl;
-    for (const auto& asistente : Asistentes){
-        cout << asistente->mostrarInformacion() << endl;
     }
 }
 
@@ -252,6 +72,190 @@ void mostrarAsistentesEnEvento(const vector<Evento*>& eventos, const vector<Asis
     }
 }
 
+/*
+    FUNCION PARA MOSTRAR LOS ASISTENTES EN EL SISTEMA.  
+*/
+void mostrarAsistentesEnSistema(const vector<Asistente*>& Asistentes){
+    cout << "Listado de Asistentes en el Sistema: " << endl;
+    for (const auto& asistente : Asistentes){
+        cout << asistente->mostrarInformacion() << endl;
+    }
+}
+
+/*
+    FUNCION PARA AGREGAR MANUALMENTE EVENTOS HACIA VECTOR EVENTOS.
+*/
+
+void agregarEventoManualmente(vector<Evento*>& eventos) {
+    string ID, tipo, ubicacion, duracionStr, capacidadStr, detalleAdicional;
+    int duracion, capacidad;
+    
+    cout << "Ingrese el ID del evento: " << endl;
+    cin >> ID;
+    cout << "Ingrese el tipo de evento (Conferencia o Concierto): " << endl;
+    cin >> tipo;
+    cin.ignore();
+    cout << "Ingrese la ubicacion del evento: " << endl;
+    getline(cin, ubicacion);
+    cout << "Ingrese la duracion del evento (en minutos): " << endl;        
+    cin >> duracionStr;
+    cout << "Ingrese la capacidad del evento: " << endl;
+    cin >> capacidadStr;
+    cin.ignore();
+
+    duracion = stoi(duracionStr);
+    capacidad = stoi(capacidadStr);
+    Evento* nuevoEvento;
+
+    if (tipo == "Conferencia") {
+        string orador, tema;                                        
+        cout << "Ingrese el nombre del orador: " << endl;
+        getline(cin, orador);
+        cout << "Ingrese el tema de la conferencia: " << endl;
+        getline(cin, tema);
+        nuevoEvento = (new Conferencia(ID, ubicacion, duracion, capacidad, orador, tema));
+        cout << "Evento Conferencia creado correctamente!." << endl;
+    } else if (tipo == "Concierto") {
+        string artista;
+        cout << "Ingrese el nombre del artista invitado: " << endl;
+        getline(cin, artista);
+        nuevoEvento = (new Concierto(ID, ubicacion, duracion, capacidad, artista));
+        cout << "Evento Concierto creado correctamente!." << endl;
+    } else {
+        cout << "Tipo de evento no reconocido. No se pudo agregar el evento." << endl;
+        return;
+    }
+    eventos.push_back(nuevoEvento);
+
+    ofstream archivo("eventos.txt", ios::app);                                 
+    if(archivo.is_open()){
+        archivo <<"\n";
+        archivo << nuevoEvento->informacionParaArchivo();               
+        archivo.close();
+        cout << "Informacion Guardada" << endl;
+    } else{
+        cout << "No se puede abrir el archivo." << endl;
+    }
+}  
+
+/*
+    FUNCION PARA AGREGAR UN ASISTENTE AL SISTEMA
+*/
+void agregarAsistenteManualmente(vector<Asistente*>& asistentes) {
+    string profesion, nombre, dni, edadStr;
+    int edad;
+    
+    cout << "Ingrese la Ocupacion del Asistente (Profesional o Estudiante): ";
+    cin >> profesion;
+    cin.ignore();
+    cout << "Ingrese el Nombre: ";
+    getline(cin, nombre);
+    cout << "Ingrese el DNI (Sin puntos ni guion): ";
+    cin >> dni;
+    cin.ignore();
+    cout << "Ingrese la Edad: ";
+    cin >> edadStr;
+    edad = stoi(edadStr);
+    Asistente* nuevoAsistente;
+    cin.ignore();
+
+    if (profesion == "Profesional") {
+        string ocupacion, empresa;
+        cout << "Ingrese la Profesion: ";
+        getline(cin, ocupacion);
+        cout << "Ingrese la Empresa: ";
+        getline(cin, empresa);
+        nuevoAsistente = (new Profesional(nombre, dni, edad, ocupacion, empresa));
+        cout << "Asistente Profesional agregado correctamente!" << endl;
+    } else if (profesion == "Estudiante") {
+        string carrera, institucion;
+        cout << "Ingrese la Carrera de estudio: ";
+        getline(cin, carrera);
+        cout << "Ingrese la Institucion: ";
+        getline(cin, institucion);
+        nuevoAsistente = (new Estudiante(nombre, dni, edad, carrera, institucion));
+        cout << "Asistente Estudiante agregado correctamente!" << endl;
+    } else {
+        cout << "Tipo de Profesion no reconocido." << endl;
+        return;
+    }
+
+    asistentes.push_back(nuevoAsistente);
+
+    ofstream archivo("asistentes.txt", ios::app);
+    if(archivo.is_open()){
+        archivo << "\n";
+        archivo << nuevoAsistente -> informacionParaArchivo();
+        archivo.close();
+        cout << "Asistente Guardado en el Sistema." << endl;
+    } else {
+        cout << "No se puede abrir el archivo." << endl;
+    }
+}
+
+
+/*
+    FUNCION PARA GUARDAR EVENTOS DESDE ARCHIVO HACIA VECTOR EVENTOS.
+*/
+void cargarEventos(const string& archivo, vector<Evento*>& eventos) {
+    ifstream file(archivo);
+    if (file.is_open()) {
+        string linea;
+        while (getline(file, linea)) {
+            vector<string> partes = split(linea, '/');
+            string ID = partes[0];
+            string tipo = partes[1];
+            string ubicacion = partes[2];
+            int duracion = stoi(partes[3]);
+            int capacidad = stoi(partes[4]);
+            Evento* evento;
+            if (tipo == "Conferencia") {
+                evento = new Conferencia(ID, ubicacion, duracion, capacidad, partes[5], partes[6]);
+            } else if (tipo == "Concierto") {
+                evento = new Concierto(ID, ubicacion, duracion, capacidad, partes[5]);
+            } else {
+                //TIPO DE EVENTO NO ECONTRADO
+                continue;
+            }
+            eventos.push_back(evento);
+        }
+        file.close();
+    } else {
+        cout << "No se pudo abrir el archivo: " << archivo << endl;
+    }
+}
+ 
+
+/*
+    FUNCION PARA GUARDAR ASISTENTES DESDE ARCHIVO HACIA VECTOR ASISTENTES
+*/
+void cargarAsistentes(const string& archivo, vector<Asistente*>& asistentes) {
+    ifstream file(archivo);
+    if (file.is_open()) {
+        string linea;
+        while (getline(file, linea)) {
+            vector<string> partes = split(linea, '/');
+            string tipo = partes[0];
+            string nombre = partes[1];
+            string dni = partes[2];
+            int edad = stoi(partes[3]);
+            Asistente* asistente;
+            if (tipo == "Profesional") {
+                asistente = new Profesional(nombre, dni, edad, partes[4], partes[5]);
+            } else if (tipo == "Estudiante") {
+                asistente = new Estudiante(nombre, dni, edad, partes[4], partes[5]);
+            } else {
+                // TIPO DE ASISTENTE NO RECONOCIDO
+                continue;
+            }
+            asistentes.push_back(asistente);
+        }
+        file.close();
+    } else {
+        cout << "No se pudo abrir el archivo: " << archivo << endl;
+    }
+}
+
 bool verificarExistenciaEvento(const std::string& idEvento) {
     std::ifstream file("listaAsistencia.txt");
     if (file.is_open()) {
@@ -268,31 +272,21 @@ bool verificarExistenciaEvento(const std::string& idEvento) {
 }
 
 void registrarAsistenteAEvento(vector<Evento*>& eventos, const vector<Asistente*>& asistentes) {
-    // Mostrar eventos disponibles con sus IDs
+
     cout << "Seleccione el evento al que desea registrarse:" << endl;
     mostrarEventos(eventos);
-
-    // Solicitar al usuario que elija un evento por su ID
     int indexEvento;
     cout << "Ingrese el número correspondiente al evento: ";
     cin >> indexEvento;
-
-    // Validar la entrada del usuario
     if (indexEvento < 0 || indexEvento >= eventos.size()) {
         cout << "Número de evento no válido. Volviendo al menú principal." << endl;
         return;
     }
-
-    // Mostrar información del evento seleccionado
     cout << "Registrándose al siguiente evento:" << endl;
     cout << "ID: " << eventos[indexEvento]->getId() << ", " << eventos[indexEvento]->mostrarInformacion() << endl;
-
-    // Solicitar al usuario que ingrese el DNI del asistente
     string dniAsistente;
     cout << "Ingrese el DNI del asistente que desea registrar: ";
     cin >> dniAsistente;
-
-    // Buscar el asistente correspondiente
     Asistente* asistente = nullptr;
     for (const auto& a : asistentes) {
         if (a->getDni() == dniAsistente) {
@@ -301,13 +295,11 @@ void registrarAsistenteAEvento(vector<Evento*>& eventos, const vector<Asistente*
         }
     }
 
-    // Registrar al asistente en el evento si se encontró
     if (asistente != nullptr) {
-        // Agregar al asistente al evento
+
         eventos[indexEvento]->agregarAsistente(asistente);
         cout << "Asistente registrado exitosamente en el evento." << endl;
 
-        // Leer el contenido del archivo de lista de asistencia en un vector
         ifstream inFile("listaAsistencia.txt");
         vector<string> lines;
         if (inFile.is_open()) {
@@ -317,8 +309,6 @@ void registrarAsistenteAEvento(vector<Evento*>& eventos, const vector<Asistente*
             }
             inFile.close();
         }
-
-        // Buscar el evento en el vector y actualizar la línea correspondiente
         bool eventoExistente = false;
         for (string& line : lines) {
             if (line.find(eventos[indexEvento]->getId()) != string::npos) {
@@ -340,12 +330,12 @@ void registrarAsistenteAEvento(vector<Evento*>& eventos, const vector<Asistente*
                 outFile << line << endl;
             }
             outFile.close();
-            cout << "Registro actualizado en el archivo de lista de asistencia." << endl;
+            cout << "se ha actualizado el registro de la asistencia" << endl;
         } else {
-            cout << "No se pudo abrir el archivo de lista de asistencia para actualizar el registro." << endl;
+            cout << "No se ha podido abrir el archivo" << endl;
         }
     } else {
-        cout << "No se encontró ningún asistente con el DNI proporcionado." << endl;
+        cout << "No existe ningun asistente en el sistema con ese DNI, por favor vuelva e ingreselo manualmente" << endl;
     }
 }
 
@@ -364,8 +354,8 @@ int main() {
         cout << "3) Listado de Asistentes en el sistema." << endl; //Listo
         cout << "4) Ingresar un nuevo Evento manualmente." << endl; //Listo
         cout << "5) Ingresar un nuevo Asistente manualmente." << endl; //Listo
-        cout << "6) Ingresar un Asistente a un Evento." << endl;  //FALTA Y SOBREESCRIBIR TXT´S
-        cout << "7) Generar Informes." << endl;
+        cout << "6) Ingresar un Asistente a un Evento." << endl;  //Listo
+        cout << "7) Generar Informes." << endl; //FALTA
         cout << "8) Salir" << endl;
         cin >> opcion;
 
@@ -383,11 +373,9 @@ int main() {
                 agregarEventoManualmente(eventos);
                 break;
             case 5:
-                cout << "Logica para Crear un nuevo Asistente" << endl;
                 agregarAsistenteManualmente(asistentes);
                 break;
             case 6:
-                cout << "Registrar un asistente a un evento." << endl;
                 registrarAsistenteAEvento(eventos, asistentes);
                 break;
             case 7:

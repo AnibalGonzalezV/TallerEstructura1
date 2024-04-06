@@ -12,5 +12,5 @@ class Estudiante : public Asistente{
     Estudiante(string nombre, string dni, int edad, string carrera, string institucion);
     ~Estudiante();
     string mostrarInformacion();
-
+    string informacionParaArchivo();
 };

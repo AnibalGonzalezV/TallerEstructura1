@@ -13,3 +13,6 @@ string Estudiante::mostrarInformacion()
 {
     return "Nombre: " + nombre + ", edad: " + to_string(edad) + " años. DNI: "+ dni + ", Estudiante de " + carrera + " en " + institucion; 
 }
+string Estudiante::informacionParaArchivo() {
+    return "Estudiante/" + nombre + "/" + dni + "/" + to_string(edad) + "/" + carrera + "/" + institucion;
+}

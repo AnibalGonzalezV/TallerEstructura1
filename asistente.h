@@ -12,7 +12,7 @@ class Asistente {
     ~Asistente();
 
     virtual string mostrarInformacion() = 0;
-
+    virtual string informacionParaArchivo() = 0;
 
     //Getters..
     string getDni();

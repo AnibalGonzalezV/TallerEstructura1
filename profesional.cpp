@@ -14,3 +14,7 @@ string Profesional::mostrarInformacion()
 {
    return "Nombre: " + nombre + ", edad: " + to_string(edad) + " años. DNI: " + dni + ", Trabaja de " + ocupacion + " en " + empresa; 
 }
+
+string Profesional::informacionParaArchivo() {
+    return "Profesional/" + nombre + "/" + dni + "/" + to_string(edad) + "/" + ocupacion + "/" + empresa;
+}
